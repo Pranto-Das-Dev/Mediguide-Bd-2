@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGuide BD | Health Information</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f8fb;
+            color: #263238;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #087e8b;
+            color: white;
+            padding: 20px 8%;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 65px 20px;
+            background: #e1f5f5;
+        }
+
+        .hero h1 {
+            color: #087e8b;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            color: #546e7a;
+            font-size: 17px;
+        }
+
+        .search-area {
+            max-width: 850px;
+            margin: 35px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        }
+
+        .search-area h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #087e8b;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        input, select {
+            padding: 13px;
+            border: 1px solid #ccd6dd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        #searchInput {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        #searchType {
+            min-width: 190px;
+        }
+
+        button {
+            padding: 13px 24px;
+            background: #087e8b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #05636d;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 15px;
+            color: #546e7a;
+        }
+
+        .results-section {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .results-section h2 {
+            color: #087e8b;
+            margin-bottom: 20px;
+        }
+
+        #resultsContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #087e8b;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+
+        .result-card h3 {
+            color: #087e8b;
+            margin-bottom: 10px;
+        }
+
+        .result-type {
+            display: inline-block;
+            background: #e1f5f5;
+            color: #087e8b;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .result-card p {
+            margin: 7px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .error-text {
+            color: #c62828;
+            text-align: center;
+            padding: 15px;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            background: #087e8b;
+            color: white;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 18px;
+            }
+
+            .navbar {
+                flex-direction: column;
+            }
+
+            nav {
+                text-align: center;
+            }
+
+            nav a {
+                margin: 0 7px;
+                display: inline-block;
+                padding: 5px 0;
+            }
+
+            .hero h1 {
+                font-size: 27px;
+            }
+
+            .search-area {
+                margin: 20px 12px;
+                padding: 20px;
+            }
+
+            .search-controls {
+                flex-direction: column;
+            }
+
+            .search-controls input,
+            .search-controls select,
+            .search-controls button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="navbar">
+        <div class="logo">MediGuide BD</div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="#search">Health Information</a>
+            <a href="#about">About</a>
+
+            <a href="/auth.html" id="loginLink">
+                Login / Register
+            </a>
+
+            <a href="/dashboard.html" id="dashboardLink" hidden>
+                My Dashboard
+            </a>
+
+            <a href="/services.html">Healthcare Services</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <h1>Your Health, Better Informed</h1>
+    <p>Your trusted health information companion</p>
+</section>
+
+<section class="search-area" id="search">
+    <h2>Search Health Information</h2>
+
+    <form id="searchForm">
+        <div class="search-controls">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search health information..."
+                required
+            >
+
+            <select id="searchType">
+                <option value="all">All Information</option>
+                <option value="conditions">Health Conditions</option>
+                <option value="symptoms">Symptoms</option>
+                <option value="medicines">Medicines</option>
+                <option value="services">Healthcare Services</option>
+            </select>
+
+            <button type="submit" id="searchButton">
+                Search
+            </button>
+
+        </div>
+    </form>
+
+    <p id="message" aria-live="polite"></p>
+</section>
+
+<section class="results-section" id="resultsSection" hidden>
+    <h2>Search Results</h2>
+    <div id="resultsContainer"></div>
+</section>
+
+<section class="hero" id="about">
+    <h2>About MediGuide BD</h2>
+    <p>
+        MediGuide BD helps users find health-related information
+        about conditions, symptoms, medicines and healthcare services.
+    </p>
+</section>
+
+<footer>
+    <p>© 2026 MediGuide BD. All Rights Reserved.</p>
+    <p>For educational information only. Consult qualified healthcare professionals for medical advice.</p>
+</footer>
+
+<script>
+
+    // Check login status and update navigation
+    async function checkLoginStatus() {
+        const loginLink = document.getElementById('loginLink');
+        const dashboardLink = document.getElementById('dashboardLink');
+
+        try {
+            const response = await fetch('/api/me', {
+                credentials: 'same-origin'
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.user) {
+                loginLink.hidden = true;
+                dashboardLink.hidden = false;
+            } else {
+                loginLink.hidden = false;
+                dashboardLink.hidden = true;
+            }
+
+        } catch (error) {
+            loginLink.hidden = false;
+            dashboardLink.hidden = true;
+
+            console.error('Login status check failed:', error);
+        }
+    }
+
+    // Start navigation check
+    checkLoginStatus();
+
+
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const searchType = document.getElementById('searchType');
+    const searchButton = document.getElementById('searchButton');
+    const message = document.getElementById('message');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    const endpoints = {
+        conditions: '/api/conditions',
+        symptoms: '/api/symptoms',
+        medicines: '/api/medicines',
+        services: '/api/services'
+    };
+
+    const resultTypes = {
+        conditions: 'Health Condition',
+        symptoms: 'Symptom',
+        medicines: 'Medicine',
+        services: 'Healthcare Service'
+    };
+
+
+    // Fetch search results
+    async function fetchResults(endpoint, query) {
+        const response = await fetch(
+            endpoint + '?q=' + encodeURIComponent(query)
+        );
+
+        let data;
+
+        try {
+            data = await response.json();
+        } catch {
+            throw new Error('Invalid response received from server.');
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Unable to search information.');
+        }
+
+        if (Array.isArray(data)) {
+            return data;
+        }
+
+        if (data && Array.isArray(data.results)) {
+            return data.results;
+        }
+
+        throw new Error('Invalid search results received.');
+    }
+
+
+    // Get result title
+    function getItemTitle(item) {
+        return item.name ||
+            item.symptom_name ||
+            item.full_name ||
+            'Information';
+    }
+
+
+    // Add details to result card
+    function addDetail(card, label, value) {
+        if (value === undefined || value === null || value === '') {
+            return;
+        }
+
+        const paragraph = document.createElement('p');
+        const strong = document.createElement('strong');
+
+        strong.textContent = label + ': ';
+
+        paragraph.appendChild(strong);
+        paragraph.appendChild(
+            document.createTextNode(String(value))
+        );
+
+        card.appendChild(paragraph);
+    }
+
+
+    // Display results
+    function displayResults(results) {
+        resultsContainer.replaceChildren();
+
+        results.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+
+            const type = document.createElement('span');
+            type.className = 'result-type';
+            type.textContent = item._resultType || 'Information';
+
+            const title = document.createElement('h3');
+            title.textContent = getItemTitle(item);
+
+            card.appendChild(type);
+            card.appendChild(title);
+
+            addDetail(card, 'Description', item.description);
+            addDetail(card, 'Symptoms', item.symptoms);
+            addDetail(card, 'Prevention', item.prevention);
+            addDetail(card, 'Related Conditions', item.related_conditions);
+            addDetail(card, 'Generic Name', item.generic_name);
+            addDetail(card, 'Category', item.category);
+            addDetail(card, 'Uses', item.uses);
+            addDetail(card, 'Precautions', item.precautions);
+            addDetail(card, 'Service Type', item.service_type);
+            addDetail(card, 'Address', item.address);
+            addDetail(card, 'Phone', item.phone);
+
+            resultsContainer.appendChild(card);
+        });
+    }
+
+
+    // Save search history
+    async function saveSearchHistory(query, type) {
+        try {
+            const response = await fetch('/api/search-history', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    search_query: query,
+                    search_type: type
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok && response.status !== 401) {
+                console.error('History save failed:', data.error);
+            }
+
+        } catch (error) {
+            console.error('Search history error:', error);
+        }
+    }
+
+
+    // Search form
+    searchForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const query = searchInput.value.trim();
+        const selectedType = searchType.value;
+
+        if (!query) {
+            message.textContent = 'Please enter a search keyword.';
+            searchInput.focus();
+            return;
+        }
+
+        saveSearchHistory(query, selectedType);
+
+        searchButton.disabled = true;
+        message.textContent = 'Searching...';
+        resultsSection.hidden = true;
+        resultsContainer.replaceChildren();
+
+        try {
+            let results = [];
+
+            if (selectedType === 'all') {
+                const categories = Object.keys(endpoints);
+
+                const responses = await Promise.all(
+                    categories.map(category =>
+                        fetchResults(endpoints[category], query)
+                    )
+                );
+
+                responses.forEach((items, index) => {
+                    const category = categories[index];
+
+                    items.forEach(item => {
+                        results.push({
+                            ...item,
+                            _resultType: resultTypes[category]
+                        });
+                    });
+                });
+
+            } else {
+                const items = await fetchResults(
+                    endpoints[selectedType],
+                    query
+                );
+
+                results = items.map(item => ({
+                    ...item,
+                    _resultType: resultTypes[selectedType]
+                }));
+            }
+
+            resultsSection.hidden = false;
+
+            if (results.length === 0) {
+                message.textContent = 'No results found.';
+            } else {
+                message.textContent =
+                    results.length + ' result(s) found.';
+
+                displayResults(results);
+            }
+
+        } catch (error) {
+            console.error('Search error:', error);
+
+            resultsContainer.replaceChildren();
+            resultsSection.hidden = false;
+
+            const errorElement = document.createElement('p');
+            errorElement.className = 'error-text';
+            errorElement.textContent =
+                'Unable to load results. ' + error.message;
+
+            resultsContainer.appendChild(errorElement);
+            message.textContent = 'Search failed.';
+
+        } finally {
+            searchButton.disabled = false;
+        }
+    });
+
+</script>
+
+</body>
+</html>

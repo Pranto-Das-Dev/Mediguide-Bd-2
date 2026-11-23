@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGuide BD | Healthcare Services</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #263238;
+        }
+
+        header {
+            background: #087f8c;
+            color: white;
+            padding: 20px 8%;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        nav h2 {
+            font-size: 24px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 18px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 45px 15px;
+            background: #e0f4f3;
+        }
+
+        .hero h1 {
+            color: #087f8c;
+            margin-bottom: 12px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        input, select {
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+            background: white;
+        }
+
+        input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        select {
+            min-width: 180px;
+        }
+
+        #servicesContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+            border-top: 4px solid #087f8c;
+        }
+
+        .service-card h3 {
+            color: #087f8c;
+            margin-bottom: 12px;
+        }
+
+        .service-card p {
+            margin: 9px 0;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .service-type {
+            display: inline-block;
+            background: #e0f4f3;
+            color: #087f8c;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        #message {
+            text-align: center;
+            margin: 20px 0;
+            color: #555;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            background: #087f8c;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+            }
+
+            nav a {
+                margin: 0 7px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <nav>
+        <h2>MediGuide BD</h2>
+
+        <div>
+            <a href="/">Home</a>
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/auth.html">Login</a>
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Healthcare Services</h1>
+    <p>Find hospitals, clinics and diagnostic centers.</p>
+</section>
+
+<main class="container">
+
+    <div class="filters">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by name or address..."
+        >
+
+        <select id="categoryFilter">
+            <option value="all">All Services</option>
+        </select>
+    </div>
+
+    <p id="message">Loading healthcare services...</p>
+
+    <div id="servicesContainer"></div>
+
+</main>
+
+<footer>
+    <p>© 2026 MediGuide BD | Health Information Companion</p>
+</footer>
+
+<script>
+    const servicesContainer = document.getElementById('servicesContainer');
+    const message = document.getElementById('message');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+
+    let allServices = [];
+
+    async function loadServices() {
+        try {
+            const response = await fetch('/api/services');
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to load services.');
+            }
+
+            allServices = Array.isArray(data) ? data : data.results || [];
+
+            if (allServices.length === 0) {
+                message.textContent = 'No healthcare services available.';
+                return;
+            }
+
+            loadCategories();
+            displayServices(allServices);
+
+        } catch (error) {
+            message.textContent = error.message;
+        }
+    }
+
+    function loadCategories() {
+        const categories = [
+            ...new Set(
+                allServices
+                    .map(service => service.service_type)
+                    .filter(Boolean)
+            )
+        ];
+
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+        });
+    }
+
+    function displayServices(services) {
+        servicesContainer.replaceChildren();
+
+        message.textContent = services.length
+            ? `${services.length} healthcare service(s) found.`
+            : 'No matching services found.';
+
+        services.forEach(service => {
+            const card = document.createElement('div');
+            card.className = 'service-card';
+
+            const name = document.createElement('h3');
+            name.textContent = service.name || 'Unnamed Service';
+
+            const type = document.createElement('span');
+            type.className = 'service-type';
+            type.textContent = service.service_type || 'Healthcare Service';
+
+            card.append(name, type);
+
+            if (service.address) {
+                const address = document.createElement('p');
+                address.textContent = `Address: ${service.address}`;
+                card.appendChild(address);
+            }
+
+            if (service.phone) {
+                const phone = document.createElement('p');
+                phone.textContent = `Phone: ${service.phone}`;
+                card.appendChild(phone);
+            }
+
+            if (service.description) {
+                const description = document.createElement('p');
+                description.textContent = service.description;
+                card.appendChild(description);
+            }
+
+            servicesContainer.appendChild(card);
+        });
+    }
+
+    function filterServices() {
+        const query = searchInput.value.trim().toLowerCase();
+        const selectedCategory = categoryFilter.value;
+
+        const filtered = allServices.filter(service => {
+            const matchesSearch =
+                (service.name || '').toLowerCase().includes(query) ||
+                (service.address || '').toLowerCase().includes(query) ||
+                (service.description || '').toLowerCase().includes(query);
+
+            const matchesCategory =
+                selectedCategory === 'all' ||
+                service.service_type === selectedCategory;
+
+            return matchesSearch && matchesCategory;
+        });
+
+        displayServices(filtered);
+    }
+
+    searchInput.addEventListener('input', filterServices);
+    categoryFilter.addEventListener('change', filterServices);
+
+    loadServices();
+</script>
+
+</body>
+</html>
